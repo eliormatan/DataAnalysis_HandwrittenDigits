@@ -1,25 +1,24 @@
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
-public class cond {
+public class cond implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int index;
-    private int value;
-    private List<List<Integer>> examples;
-    public cond(List<List<Integer>> examples){
-        this.examples=examples;
-        this.index=-1;
-        this.value=-1;
+
+    public cond(int index) {
+        this.index = index;
     }
-    public boolean checkCond(List<Integer> pixel){
-        return pixel.get(this.index)>128;
+
+    public boolean checkCond(Integer [] pixel) {
+        return pixel[this.index] > 128;
     }
-    public void setValue(int value){
-        this.value = value;
+
+    public int getIndex() {
+        return index;
     }
-    public int getValue(){
-        return value;
+
+    public void setIndex(int index) {
+        this.index = index;
     }
-    public List<List<Integer>> getExamples(){
-        return examples;
-    }
+
 }

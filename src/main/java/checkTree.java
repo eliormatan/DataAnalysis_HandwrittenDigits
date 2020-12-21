@@ -1,13 +1,15 @@
 public class checkTree {
-  condNode root;
+    condNode root;
 
-  public checkTree(){
-      root = null;
-  }
-  public void setRoot(condNode root){
-      this.root=root;
-  }
-  public condNode getRoot(){
-      return root;
-  }
+    public checkTree() {
+        root = null;
+    }
+
+    public condNode getRoot() {
+        return root;
+    }
+
+    public void setRoot(condNode root) {
+        this.root = root;
+    }
 }
