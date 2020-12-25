@@ -1,17 +1,12 @@
 import java.io.Serializable;
 import java.util.List;
 
-public class cond implements Serializable {
+public abstract class cond implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private int index;
 
-    public cond(int index) {
-        this.index = index;
-    }
-
-    public boolean checkCond(Integer [] pixel) {
-        return pixel[this.index] > 128;
-    }
+    public abstract boolean checkCond(int [] pixel);
 
     public int getIndex() {
         return index;
@@ -21,4 +16,7 @@ public class cond implements Serializable {
         this.index = index;
     }
 
+    public boolean getCondAns(int exampleIndex){
+        return learntree.condAnswer[exampleIndex][this.index-1];
+    }
 }

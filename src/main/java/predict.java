@@ -31,9 +31,9 @@ public class predict {
             System.err.println("node from input file is not valid");
             System.exit(1);
         }
-
+        learntree.printNode(root);
         List<Integer[]> csvData = learntree.readCsv(args[1]);
-
+        int [] histograma = getLabels(csvData);
         if (csvData == null) {
             System.err.println("test file is not valid");
             System.exit(1);
@@ -42,22 +42,36 @@ public class predict {
         for(Integer[] testline: csvData)
             System.out.println(predictLabel(testline,root));
 
+        for(int num: histograma)
+            System.out.print(" "+num+" ");
         logger.info("end time");
 
+    }
+
+    public static int[] getLabels(List<Integer []> examples) {
+        int[] histograma = new int[10];
+        for (Integer [] e : examples) {
+            histograma[e[0]]++;
+        }
+        return histograma;
     }
 
     private static int predictLabel(Integer[] testline,condNode node) {
 //        logger.info("root label"+node.getLabel());
         while (!node.isLeaf()){
 //            logger.info("curr cond index"+node.getCondition().getIndex());
-            boolean condResult=node.getCondition().checkCond(testline);
-            logger.info("condresult "+condResult);
+            int [] test = new int[testline.length];
+            for(int i=0;i<testline.length;i++){
+                test[i]=testline[i];
+            }
+            boolean condResult=node.getCondition().checkCond(test);
+            /*logger.info("condresult "+condResult);*/
 
             if(condResult) {
-                node = node.getLeft();
+                node = node.getRight();
             }
             else {
-                node = node.getRight();
+                node = node.getLeft();
             }
 //            logger.info("current label"+node.getLabel());
         }

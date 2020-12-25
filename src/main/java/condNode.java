@@ -6,24 +6,27 @@ import java.util.stream.Collectors;
 public class condNode implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final double LOG_OF_2 = Math.log(2.0);
-    cond condition;
-    condNode left, right;   //left=yes,right=no
-    int label, N;
-    int [] labels;
-    double entropy;
-    double maxIG;
-    List<Integer []> examplesArrivedSoFar;
+    private cond condition;
+    private condNode left, right;   //left=yes,right=no
+    private int label, N,Na,Nb;
+    private double entropy;
+    private double maxIG;
+    private int [] labels,labelsA,labelsB;
+    private int [] examplesArrivedSoFar;
 
-    public condNode(List<Integer []> examplesArrivedSoFar) {
-        this.examplesArrivedSoFar = examplesArrivedSoFar;
+    public condNode(int [] examples, int [] labels) {
+        this.examplesArrivedSoFar = examples;
         this.right = null;
         this.left = null;
-        this.N = examplesArrivedSoFar.size();
-        this.labels = getLabels(this.examplesArrivedSoFar);
+        this.N = examplesArrivedSoFar.length;
+        this.labels = labels;
         this.label = getMaxLabel();
         this.entropy = calcEntropy(this.labels);
-        this.maxIG =-1;
-
+        this.maxIG =0.0;
+        this.Na=0;
+        this.Nb=0;
+        this.labelsA = new int[Na];
+        this.labelsA = new int[Nb];
     }
 
     public condNode(condNode other){
@@ -63,58 +66,72 @@ public class condNode implements Serializable {
         return value;
     }
     public double calcEntropy(int [] labels){
-        double entropy = 0;
+        double entropy = 0.0;
+        if(N==0)
+            return 0.0;
         for (int i = 0; i < 10; i++) {
             if (labels[i] > 0) {
-                entropy += ((double) labels[i] / N) * Math.log(N/ labels[i]);
+                entropy += ((double) labels[i] /(double)N) * (Math.log((double)N/ (double)labels[i])/LOG_OF_2);
             }
         }
         return entropy;
     }
-    public void calcMaxIG(cond [] C){
-        cond bestCond = null;
-        for(cond x: C){
-          double Hx = Hx(x);
+    public void calcMaxIG(List<cond> condList){
+        if(N==0) {
+            this.maxIG=0.0;
+            this.condition= condList.get((int)(Math.random()*condList.size()));
+            return;
+        }
+        for(cond x: condList){
+            int Numa = 0;
+            int Numb = 0;
+            int [] labelsA = new int[10];
+            int [] labelsB = new int[10];
+            for(int i=0;i<N;i++){
+                if(x.getCondAns(examplesArrivedSoFar[i])){
+                    labelsA[learntree.examplesLabels[examplesArrivedSoFar[i]]]++;
+                    Numa++;
+                }
+                else{
+                    labelsB[learntree.examplesLabels[examplesArrivedSoFar[i]]]++;
+                    Numb++;
+                }
+            }
+            if(Numa==0 || Numb==0)
+                continue;
+            double entropyA = calcEntropy(labelsA);
+            double entropyB = calcEntropy(labelsA);
+          double Hx = ((double)Numa/(double)N)*entropyA+((double)Numb/(double)N)*entropyB;
           double IG = this.entropy-Hx;
-          if(IG>maxIG){
+          if(IG>this.maxIG){
               this.maxIG=IG;
               this.condition=x;
+              this.Na=Numa;
+              this.Nb=Numb;
+              this.labelsA=labelsA;
+              this.labelsB=labelsB;
           }
         }
-        this.maxIG=this.maxIG*N;
+        this.maxIG=this.maxIG*(double)N;
     }
-    private double Hx(cond x){
-        int Na = 0;
-        int Nb = 0;
-        int [] labelsA = new int[10];
-        int [] labelsB = new int[10];
-        for(int i=0;i<N;i++){
-          if(x.checkCond(examplesArrivedSoFar.get(i))){
-              labelsA[examplesArrivedSoFar.get(i)[0]]++;
-              Na++;
-          }
-          else{
-              labelsB[examplesArrivedSoFar.get(i)[0]]++;
-              Nb++;
-          }
-        }
-        double entropyA = calcEntropy(labelsA);
-        double entropyB = calcEntropy(labelsA);
-        return ((double)Na/N)*entropyA+((double)Nb/N)*entropyB;
-    }
+
     public void addLeafes(){
-        List<Integer []> examplesLa = new ArrayList<>();
-        List<Integer []> examplesLb = new ArrayList<>();
+        int [] examplesLa = new int[Na];
+        int [] examplesLb = new int[Nb];
+        int countA = 0;
+        int countB = 0;
         for(int i=0;i<N;i++){
-            if(condition.checkCond(examplesArrivedSoFar.get(i))){
-                examplesLa.add(examplesArrivedSoFar.get(i));
+            if(condition.getCondAns(examplesArrivedSoFar[i])){
+                examplesLa[countA] = examplesArrivedSoFar[i];
+                countA++;
             }
             else{
-                examplesLb.add(examplesArrivedSoFar.get(i));
+                examplesLb[countB] = examplesArrivedSoFar[i];
+                countB++;
             }
         }
-        this.right=new condNode(examplesLa);
-        this.left=new condNode(examplesLb);
+        this.right=new condNode(examplesLa,this.labelsA);
+        this.left=new condNode(examplesLb,this.labelsB);
     }
     public double getEntropy() {
         return entropy;
@@ -145,12 +162,17 @@ public class condNode implements Serializable {
     }
 
 
-    public List<Integer []> getExamplesArrivedSoFar() {
+    public int[] getExamplesArrivedSoFar() {
         return examplesArrivedSoFar;
     }
 
+    public void setExamplesArrivedSoFar(int[] examplesArrivedSoFar) {
+        this.examplesArrivedSoFar = examplesArrivedSoFar;
+    }
 
-
+    public void setLabels(int[] labels) {
+        this.labels = labels;
+    }
 
     public boolean isLeaf() {
         return (left == null && right == null);
