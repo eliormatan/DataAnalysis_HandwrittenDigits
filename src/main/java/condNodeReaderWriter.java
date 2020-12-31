@@ -3,7 +3,7 @@ import java.io.*;
 public class condNodeReaderWriter {
     public static void writeCondNodeToFile(condNode root, String fileName){
         if(root == null || !(root instanceof Serializable)) {
-            System.err.println("the instance root is null ");
+            System.err.println("the instance root is null or not Serializable");
             System.exit(1);
         }
 

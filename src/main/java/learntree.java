@@ -18,15 +18,23 @@ public class learntree {
         logger.addHandler(fileHandler);
         logger.setLevel(Level.ALL);
         logger.info("start time");
+        if(args.length != 5) {
+            System.err.println("number of arguments are not valid");
+            System.exit(1);
+        }
         List<Integer[]> examples = readCsv(args[3]);
+        if(examples == null) {
+            System.err.println("Could not load file \"" + args[3] + "\".");
+            System.exit(1);
+        }
         logger.info("finish loading");
         int opt = Integer.parseInt(args[0]);
         int P = Integer.parseInt(args[1]);
         int L = Integer.parseInt(args[2]);
-        int validationNum = (P * examples.size())/100;
+        int validationNum = (int)(((double)P * (double)examples.size())/100.0);
         int [][] examplesData = new int[examples.size()-validationNum][];
         for(int i=0;i<examplesData.length;i++){
-            Integer [] data = examples.remove((int) (Math.random() * examples.size()));
+            Integer [] data = examples.remove((int) (Math.random() * (double) examples.size()));
             examplesData[i] = new int[data.length];
             for(int j=0;j<examplesData[i].length;j++){
                 examplesData[i][j] = data[j];
@@ -42,10 +50,7 @@ public class learntree {
         }
 //        /*
 
-       List<cond> condList = new ArrayList<>();
-        for (int i = 1; i <= 28 * 28; i++) {
-            condList.add(new DefaultCond(i));
-        }
+        List<cond> condList = opt==1 ? generateDefaultConds() : null;
         init(examplesData,validationArr,condList);
         logger.info("finish load conds");
         int T = 1;
@@ -70,10 +75,8 @@ public class learntree {
                 leaves.add(maxLeaf.getLeft());
                 logger.info("finish iteration "+j+ " "+i);
             }
-            //todo: check success rate on validation set and save save value of T if it max
 
             int currRate = checkValidation(root,validationIndexArr);
-            System.out.println("succeed "+ ((double)checkValidation(root,validationIndexArr)/(double)(validationNum)*100));
             if (currRate > maxTRate) {
                 maxTRate = currRate;
                 maxT = (int)Math.pow(2,i);
@@ -81,9 +84,7 @@ public class learntree {
             if (i != 0)
                 T = T * 2;
         }
-        //todo: create new tree based on best T including validation & training sets
-        // ...
-//*/
+
         logger.info("finish check T "+maxT);
         mergeExamples(examplesData.length+validationNum);
         condNode newRoot = new condNode(mergedExamples,mergedExamplesLabels);
@@ -108,9 +109,14 @@ public class learntree {
             l.setExamplesArrivedSoFar(null);
             l.setLabels(null);
         }
-        condNodeReaderWriter.writeCondNodeToFile(newRoot, args[4]);
+        try {
+            condNodeReaderWriter.writeCondNodeToFile(newRoot, args[4]);
+        } catch (RuntimeException e){
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
         System.out.println("num: " + mergedExamples.length);
-        System.out.println("error: " + (100 - ((double)checkValidation(newRoot,mergedExamples)/(double)(mergedExamples.length)*100)));
+        System.out.println("error: " + (int)(100 - ((double)checkValidation(newRoot,mergedExamples)/(double)(mergedExamples.length)*100)));
         System.out.println("size: " + maxT);
         logger.info("end time");
     }
@@ -154,31 +160,6 @@ public class learntree {
         return checkRoot.getLabel() == examplesLabels[validationIndex];
     }
 
-    private static Integer[] getRecordFromLine(String line) {
-        Integer[] values = new Integer[785];
-        try (Scanner rowScanner = new Scanner(line)) {
-            rowScanner.useDelimiter(",");
-            int i = 0;
-            while (rowScanner.hasNext()) {
-                values[i] = Integer.parseInt(rowScanner.next());
-                i++;
-            }
-        }
-        return values;
-    }
-
-    private static List<Integer[]> getExamples(String fileName) throws FileNotFoundException {
-        List<Integer[]> records = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new File(fileName));) {
-            while (scanner.hasNextLine()) {
-                records.add(getRecordFromLine(scanner.nextLine()));
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return records;
-    }
-
     public static void init(int [][] examples,int[][] validationArr, List<cond> condList){
         condAnswer = new boolean[examples.length+ validationArr.length][condList.size()];
         examplesLabels = new int[examples.length+ validationArr.length];
@@ -202,6 +183,14 @@ public class learntree {
                 exampleAns[j] = condList.get(j).checkCond(validationArr[i]);
             }
         }
+    }
+
+    public static List<cond> generateDefaultConds(){
+      List<cond> ans = new ArrayList<>();
+        for (int i = 1; i <= 28 * 28; i++) {
+           ans.add(new DefaultCond(i));
+        }
+      return ans;
     }
 
     public static ArrayList<Integer[]> readCsv(String path) {
