@@ -77,6 +77,7 @@ public class learntree {
             }
 
             int currRate = checkValidation(root,validationIndexArr);
+         /*   System.out.println(((double)currRate/(double)(validationIndexArr.length)*100)); */
             if (currRate > maxTRate) {
                 maxTRate = currRate;
                 maxT = (int)Math.pow(2,i);
