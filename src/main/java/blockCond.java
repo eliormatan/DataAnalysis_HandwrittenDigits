@@ -1,10 +1,13 @@
 public class blockCond extends cond {
-    private String type;
-    private int size;
-    public blockCond(int index,String type,int size) {
+    private int sizeRow;
+    private int sizeCol;
+    private int k;
+    public blockCond(int unique, int index,int sizeRow,int sizeCol, int k) {
+        this.uniqueIndex=unique;
         this.setIndex(index);
-        this.type=type;
-        this.size=size;
+        this.sizeRow=sizeRow;
+        this.sizeCol=sizeCol;
+        this.k=k;
     }
 
     @Override
@@ -17,18 +20,15 @@ public class blockCond extends cond {
         //                              88 , 89 , 90
 
         int pixels = 0;
-        int dark =4;
-        int rowSize = type=="r" ? size : size+4;
-        int colSize = type=="r" ? size+4 : size;
-        int row=this.getIndex()/28;
-        int col=this.getIndex()%28;
+        int row=this.uniqueIndex/28;
+        int col=this.uniqueIndex%28;
 
-        for (int i = row; i <= row + rowSize; i++) {
-            for (int j = col; j <= col + colSize; j++) {
+        for (int i = row; i <= row + sizeRow; i++) {
+            for (int j = col; j <= col + sizeCol; j++) {
                 if (pixel[28*i+j] > 0)
                     pixels++;
 
-                if (pixels >= dark)
+                if (pixels >= k)
                     return true;
             }
         }

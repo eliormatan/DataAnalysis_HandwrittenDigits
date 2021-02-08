@@ -5,6 +5,7 @@ public abstract class cond implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int index;
+    public int uniqueIndex;
 
     public abstract boolean checkCond(int [] pixel);
 

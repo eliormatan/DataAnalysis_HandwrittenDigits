@@ -122,10 +122,10 @@ public class learntree {
             System.exit(1);
         }
 
-        traverse(newRoot);
+      /*  traverse(newRoot);
         condsCounter.entrySet().forEach(entry->{
             System.out.println(entry.getKey() + " " + entry.getValue());
-        });
+        }); */
 
         System.out.println("num: " + mergedExamples.length);
         System.out.println("error: " + (int) (100 - ((double) checkValidation(newRoot, mergedExamples) / (double) (mergedExamples.length) * 100)));
@@ -197,6 +197,9 @@ public class learntree {
                 exampleAns[j] = condList.get(j).checkCond(validationArr[i]);
             }
         }
+        for(int i=0;i<condList.size();i++){
+            condList.get(i).setIndex(i+1);
+        }
     }
 
     public static List<cond> generateDefaultConds() {
@@ -224,7 +227,7 @@ public class learntree {
             int col = colCounter % 28;
 
 //            System.out.println("row "+row+" col "+col);
-            ans.add(new ImprovedCond(i));
+            ans.add(new ImprovedCond(i-1,i));
 
 //            for(int j=2;j<3;j++) {
 //                if(row<28-j-1 && col<28-j-5)
@@ -239,9 +242,14 @@ public class learntree {
             if (colCounter % 28 == 0)
                 rowCounter++;
 
-            for(int j=5;j<6;j++) {
-                if (row > 0 && row < 28-j && col > 0 && col < 28-j)
-                    ans.add(new cubeCond(i, j));
+                if (row >= 0 && row < 28-2 && col >= 0 && col < 28-6)
+                    ans.add(new blockCond(i-1,i-1,2,6,3));
+
+        }
+        for(int i=1;i<=28;i++){
+            for(int k=1;k<=10;k++){
+                ans.add(new verticalNode(i-1,i,"row",k));
+                ans.add(new verticalNode(i-1,i,"col",k));
             }
         }
         condsCounter.put("cubeCond",0);

@@ -16,13 +16,13 @@ public class cubeCond extends cond {
     int pixels = 0;
 //    int dark = 6;
 //    int blockSize = 5;
-    int dark=blockSize+1;
+    int dark=6;
     int row=this.getIndex()/28;
     int col=this.getIndex()%28;
 
         for (int i = row; i < row + blockSize; i++) {
         for (int j = col; j < col + blockSize; j++) {
-            if (pixel[28*i+j] > 0)
+            if (pixel[28*i+j] > 5)
                 pixels++;
 
             if (pixels >= dark)
