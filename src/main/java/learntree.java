@@ -10,28 +10,17 @@ import java.util.logging.SimpleFormatter;
 public class learntree {
     public static boolean[][] condAnswer;
     public static int[] examplesLabels, initExamples, initLabels, validationIndexArr, mergedExamples, mergedExamplesLabels;
-    public static HashMap<String, Integer> condsCounter;
     public static void main(String[] args) throws IOException {
-        condsCounter = new HashMap<>();
-        Logger logger = Logger.getLogger(learntree.class.getName());
-        FileHandler fileHandler = new FileHandler(logger.getName() + ".txt");
-        fileHandler.setFormatter(new SimpleFormatter());
-        logger.addHandler(fileHandler);
-        logger.setLevel(Level.ALL);
-        logger.info("start time");
         if (args.length != 5) {
             System.err.println("number of arguments are not valid");
             System.exit(1);
         }
         List<Integer[]> examples = readCsv(args[3]);
 
-//        check.statistics(examples);
-///*
         if (examples == null) {
             System.err.println("Could not load file \"" + args[3] + "\".");
             System.exit(1);
         }
-//        logger.info("finish loading");
         int opt = Integer.parseInt(args[0]);
         int P = Integer.parseInt(args[1]);
         int L = Integer.parseInt(args[2]);
@@ -55,28 +44,24 @@ public class learntree {
 
         List<cond> condList = opt == 1 ? generateDefaultConds() : generateImprovedConds();
         init(examplesData, validationArr, condList);
-//        logger.info("finish load conds");
         int T = 1;
         int maxT = 1;
         int maxTRate = -1;
-//        logger.info("finish first Node");
         condNode root = new condNode(initExamples, initLabels);
         root.calcMaxIG(condList);
-//        logger.info("finish first IG " + root.getMaxIG());
         PriorityQueue<condNode> leaves = new PriorityQueue<>((condNode x, condNode y) -> x.getMaxIG() < y.getMaxIG() ? 1 : -1);
         leaves.add(root);
         for (int i = 0; i <= L; i++) {
             for (int j = 1; j <= T; j++) {
                 condNode maxLeaf = leaves.poll();
-                //substitute max leaf in Node with 2 children
-                maxLeaf.addLeafes();
-//                logger.info("split leaves " + j + " " + i);
-                maxLeaf.getRight().calcMaxIG(condList);
-                maxLeaf.getLeft().calcMaxIG(condList);
-//                logger.info("calc new leaves " + j + " " + i + " " + maxLeaf.getRight().getMaxIG() + " " + maxLeaf.getLeft().getMaxIG());
-                leaves.add(maxLeaf.getRight());
-                leaves.add(maxLeaf.getLeft());
-//                logger.info("finish iteration " + j + " " + i);
+                if(maxLeaf==null)
+                    break;
+                if(maxLeaf.addLeafes()) {
+                    maxLeaf.getRight().calcMaxIG(condList);
+                    maxLeaf.getLeft().calcMaxIG(condList);
+                    leaves.add(maxLeaf.getRight());
+                    leaves.add(maxLeaf.getLeft());
+                }
             }
 
             int currRate = checkValidation(root, validationIndexArr);
@@ -88,7 +73,6 @@ public class learntree {
                 T = T * 2;
         }
 
-        logger.info("finish check T " + maxT);
         mergeExamples(examplesData.length + validationNum);
         condNode newRoot = new condNode(mergedExamples, mergedExamplesLabels);
         newRoot.calcMaxIG(condList);
@@ -97,17 +81,16 @@ public class learntree {
 
         for (int i = 1; i <= maxT; i++) {
             condNode maxLeaf = newLeaves.poll();
-            //substitute max leaf in Node with 2 children
-//            logger.info("split leaves" + i);
-            maxLeaf.addLeafes();
+            if(maxLeaf==null)
+                break;
+            if(maxLeaf.addLeafes()) {
+                maxLeaf.getRight().calcMaxIG(condList);
+                maxLeaf.getLeft().calcMaxIG(condList);
+                newLeaves.add(maxLeaf.getRight());
+                newLeaves.add(maxLeaf.getLeft());
+            }
             maxLeaf.setExamplesArrivedSoFar(null);
             maxLeaf.setLabels(null);
-            maxLeaf.getRight().calcMaxIG(condList);
-            maxLeaf.getLeft().calcMaxIG(condList);
-//            logger.info("calc new leaves");
-            newLeaves.add(maxLeaf.getRight());
-            newLeaves.add(maxLeaf.getLeft());
-//            logger.info("finish iteration");
         }
 
 
@@ -122,27 +105,9 @@ public class learntree {
             System.exit(1);
         }
 
-      /*  traverse(newRoot);
-        condsCounter.entrySet().forEach(entry->{
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }); */
-
         System.out.println("num: " + mergedExamples.length);
         System.out.println("error: " + (int) (100 - ((double) checkValidation(newRoot, mergedExamples) / (double) (mergedExamples.length) * 100)));
         System.out.println("size: " + maxT);
-//*/
-
-        logger.info("end time");
-    }
-
-    public static void printNode(condNode root) {
-        System.out.println("the label is " + root.getLabel());
-        System.out.println("the entropy is " + root.getEntropy());
-        System.out.println("the maxIG is " + root.getMaxIG());
-        if (root.getLeft() != null)
-            printNode(root.getLeft());
-        if (root.getRight() != null)
-            printNode(root.getRight());
     }
 
     public static void mergeExamples(int size) {
@@ -215,29 +180,10 @@ public class learntree {
         int colCounter = 0;
         int rowCounter = 0;
 
-//        for(int j=4;j<5;j++) {
-//            for (int i = 1; i < 27; i++) {
-//                ans.add(new verticalNode(i, "row", j));
-//                ans.add(new verticalNode(i, "col", j));
-//            }
-//        }
-
         for (int i = 1; i <= 28 * 28; i++) {
             int row = rowCounter % 28;
             int col = colCounter % 28;
-
-//            System.out.println("row "+row+" col "+col);
             ans.add(new ImprovedCond(i-1,i));
-
-//            for(int j=2;j<3;j++) {
-//                if(row<28-j-1 && col<28-j-5)
-//                  ans.add(new blockCond(i,"r",j));
-//
-//                if(col<28-j-1 && row<28-j-5)
-//                    ans.add(new blockCond(i,"c",j));
-//            }
-
-
             colCounter++;
             if (colCounter % 28 == 0)
                 rowCounter++;
@@ -247,17 +193,9 @@ public class learntree {
 
         }
         for(int i=1;i<=28;i++){
-            for(int k=1;k<=10;k++){
-                ans.add(new verticalNode(i-1,i,"row",k));
-                ans.add(new verticalNode(i-1,i,"col",k));
-            }
+                ans.add(new verticalNode(i-1,i,"row",1));
+                ans.add(new verticalNode(i-1,i,"col",1));
         }
-        condsCounter.put("cubeCond",0);
-        condsCounter.put("ImprovedCond",0);
-        condsCounter.put("colCond",0);
-        condsCounter.put("rowCond",0);
-        condsCounter.put("blockCond",0);
-        condsCounter.put("verticalNode",0);
 
         return ans;
     }
@@ -282,28 +220,6 @@ public class learntree {
 
         return ret;
     }
-
-    public static void traverse(condNode newRoot){
-        if(newRoot!=null){
-
-
-            /* first recur on left child */
-            traverse(newRoot.getLeft());
-
-            /* then print the data of node */
-            cond cond=newRoot.getCondition();
-            if(cond!=null) {
-                String chosen=cond.getClass().toString().split(" ")[1];
-                Integer count =condsCounter.get(chosen);
-                condsCounter.put(chosen,count+1);
-            }
-
-            /* now recur on right child */
-            traverse(newRoot.getRight());
-
-        }
-    }
-
 }
 
 

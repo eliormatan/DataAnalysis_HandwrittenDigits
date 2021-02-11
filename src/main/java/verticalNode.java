@@ -1,12 +1,12 @@
 public class verticalNode extends cond{
     private String type;
-    private int dark;
+    private int w;
 
-    public verticalNode(int unique, int index,String type,int dark) {
+    public verticalNode(int unique, int index,String type,int w) {
         this.uniqueIndex=unique;
         this.setIndex(index);
         this.type=type;
-        this.dark=dark;
+        this.w=w;
     }
 
     @Override
@@ -14,25 +14,24 @@ public class verticalNode extends cond{
 
 
         int pixels = 0;
-//        int darkLine = 4;
 
         if(this.type.equals("col")) {
             int col = this.uniqueIndex % 28;
             for (int j = 0; j < 28; j++) {
-                if (pixel[28 * j + col] > 0)
+                if (pixel[28 * j + col] > 5)
                     pixels++;
 
-                if (pixels >= dark)
+                if (pixels >= w)
                     return true;
             }
         }
         else{
             int row = this.uniqueIndex / 28;
             for (int j = 0; j < 28; j++) {
-                if (pixel[28 * row + j] > 0)
+                if (pixel[28 * row + j] > 5)
                     pixels++;
 
-                if (pixels >= dark)
+                if (pixels >= w)
                     return true;
             }
         }

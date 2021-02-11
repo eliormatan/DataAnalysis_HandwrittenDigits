@@ -72,7 +72,6 @@ public class condNode implements Serializable {
     public void calcMaxIG(List<cond> condList){
         if(N==0) {
             this.maxIG=0.0;
-            this.condition= condList.get((int)(Math.random()*condList.size()));
             return;
         }
         for(cond x: condList){
@@ -108,7 +107,9 @@ public class condNode implements Serializable {
         this.maxIG=this.maxIG*(double)N;
     }
 
-    public void addLeafes(){
+    public boolean addLeafes(){
+        if(this.condition==null || this.maxIG==0.0 || this.entropy==0.0)
+            return false;
         int [] examplesLa = new int[Na];
         int [] examplesLb = new int[Nb];
         int countA = 0;
@@ -125,6 +126,7 @@ public class condNode implements Serializable {
         }
         this.right=new condNode(examplesLa,this.labelsA);
         this.left=new condNode(examplesLb,this.labelsB);
+        return true;
     }
     public double getEntropy() {
         return entropy;

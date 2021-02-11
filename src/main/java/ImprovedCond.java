@@ -7,7 +7,6 @@ public class ImprovedCond extends cond {
 
     @Override
     public boolean checkCond(int[] pixel) {
-//        return pixel[this.getIndex()] > 0;
         return pixel[this.uniqueIndex]>5;
     }
 }

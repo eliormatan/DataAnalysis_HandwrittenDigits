@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -10,11 +11,6 @@ public class predict {
     private static Logger logger = Logger.getLogger(predict.class.getName());
 
     public static void main(String[] args) throws IOException {
-        FileHandler fileHandler = new FileHandler(logger.getName() + ".txt");
-        fileHandler.setFormatter(new SimpleFormatter());
-        logger.addHandler(fileHandler);
-        logger.setLevel(Level.ALL);
-        logger.info("start time");
         if (args.length != 2) {
             System.err.println("number of arguments are not valid");
             System.exit(1);
@@ -37,16 +33,10 @@ public class predict {
             System.exit(1);
         }
 
-        int counter =0;
         for(Integer[] testline: csvData) {
            int num = predictLabel(testline, root);
-           if(num==testline[0])
-               counter++;
            System.out.println(num);
         }
-        System.out.println(counter);
-        logger.info("end time");
-
     }
 
 
