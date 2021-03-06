@@ -31,14 +31,19 @@ The algorithm selects a condition(from a set C) and a leaf which maximizes the I
 
 ### How the algorithm choose the tree size:
 By using validation set. The algorithm selects randomly P% from the samples to be the validation set, and the rest will be used for the training.
-For each of the possible values of T, run the tree construction algorithm on the training sample for T. then the algorithm calculates the estimated algorithm success by applying the prediction model to the samples in the validation sample, and calculates the percentage of samples for which the algorithm prediction model matches the true label of the example. 
-At the end of the pass on all the values of T, select the value of T for which the success on the validation sample was the highest. For this value, the tree learning algorithm is re-run on the entire sample, including the training part and the validation part. The generated tree is the output of the algorithm. The final success of the learning algorithm will be tested on the test sample.
-//todo
+For each of the possible values of T (1 to 2^L ,only power of 2) , the algorithm build the tree on the training sample for T. Then it calculates the estimated algorithm success by applying the prediction model to the samples in the validation sample, and calculates the percentage of samples for which the algorithm prediction model matches the true label of the example. 
+At the end of the pass on all the values of T, it selects the value of T for which the success on the validation sample was the highest. For this value, the tree learning algorithm is re-run on the entire sample, including the training part and the validation part. 
 
-### What are the conditions in each version:
+### The conditions:
 #### version 1:
-//todo
+Is the pixel value in position (x, y) in the picture is more than 128?\
+#### version 2: The improved condition 
+- Is the pixel value in position (x, y) in the picture is more than 5?\
+- Are there at least 3 pixels larger than 0 in blocks (pixel group) in size 1 * 5?\
+- Is there at least one pixel larger than 0 in the column / row ?\
 
-#### version 2: 
-//todo
+### Results:
+By using parameters P=10,L=7.
+- version 1: 78% success rate.
+- version 2: 94% success rate. And even reached a **99%** success rate,by using parameters P=15,L=11.
 
