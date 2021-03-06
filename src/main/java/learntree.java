@@ -1,16 +1,13 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class learntree {
     public static boolean[][] condAnswer;
     public static int[] examplesLabels, initExamples, initLabels, validationIndexArr, mergedExamples, mergedExamplesLabels;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         if (args.length != 5) {
             System.err.println("number of arguments are not valid");
             System.exit(1);
@@ -201,7 +198,7 @@ public class learntree {
     }
 
     public static ArrayList<Integer[]> readCsv(String path) {
-        ArrayList<Integer[]> ret = new ArrayList<Integer[]>();
+        ArrayList<Integer[]> ret = new ArrayList<>();
         ret.ensureCapacity(1 << 16);
 
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {

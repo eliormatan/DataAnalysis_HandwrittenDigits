@@ -1,7 +1,5 @@
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class condNode implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -128,9 +126,6 @@ public class condNode implements Serializable {
         this.left=new condNode(examplesLb,this.labelsB);
         return true;
     }
-    public double getEntropy() {
-        return entropy;
-    }
 
     public cond getCondition() {
         return condition;
@@ -148,17 +143,8 @@ public class condNode implements Serializable {
         return label;
     }
 
-    public int getN() {
-        return N;
-    }
-
     public double getMaxIG(){
         return this.maxIG;
-    }
-
-
-    public int[] getExamplesArrivedSoFar() {
-        return examplesArrivedSoFar;
     }
 
     public void setExamplesArrivedSoFar(int[] examplesArrivedSoFar) {
