@@ -20,7 +20,7 @@ $ ./predict <tree_filename> <testset_filename>
 When:\
 1/2 - version of the learning algorithm to run\
 P - the percent of the training set that should be used for validation\
-L - the maximal power of 2 for tree sizes T\
+L - the maximal power of 2 for tree sizes T
 
 ## How the algorithm build the decision tree:
 Started with one leaf with the most common digit in the training set. In each round (number of rounds is determined by the input parameter T), one of the leaves in the tree is deleted, and replaced by a condition junction with two children who are leaves (The value in each new leaf will be the most common digit in the training sample for images that fit that leaf).
@@ -36,11 +36,11 @@ At the end of the pass on all the values of T, it selects the value of T for whi
 
 ### The conditions:
 #### version 1:
-Is the pixel value in position (x, y) in the picture is more than 128?\
+Is the pixel value in position (x, y) in the picture is more than 128 ?
 #### version 2: The improved condition 
-- Is the pixel value in position (x, y) in the picture is more than 5?\
-- Are there at least 3 pixels larger than 0 in blocks (pixel group) in size 1 * 5?\
-- Is there at least one pixel larger than 0 in the column / row ?\
+- Is the pixel value in position (x, y) in the picture is more than 5 ?
+- Are there at least 3 pixels larger than 0 in blocks (pixel group) in size 1 * 5 ?
+- Is there at least one pixel larger than 0 in the column/row ?
 
 ### Results:
 By using parameters P=10,L=7.
